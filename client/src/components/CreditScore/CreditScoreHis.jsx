@@ -9,7 +9,7 @@ import { ArrowUp, ArrowDown, TrendingUp } from 'lucide-react';
 const CreditScoreHistory = () => {
   const dispatch = useDispatch();
   const creditScoreHistory = useSelector(state => state.creditScoreHistory.creditScoreHistory);
-  console.log(creditScoreHistory)
+  console.log(creditScoreHistory[0].score)
   const [filteredData, setFilteredData] = useState([]);
   const [filter, setFilter] = useState('30'); // Default to 30 days
 
@@ -96,7 +96,7 @@ const CreditScoreHistory = () => {
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <p className="text-gray-500 text-sm mb-1">Current Score</p>
           <div className="flex items-end">
-            <span className="text-3xl font-bold text-gray-900">{currentScore}</span>
+            <span className="text-3xl font-bold text-gray-900">{creditScoreHistory[0].score}</span>
           </div>
         </div>
         
