@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, LineChart, ShieldCheck, Award, TrendingUp, PieChart, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [email, setEmail] = useState('');
@@ -17,9 +18,12 @@ const Home = () => {
               See how your financial decisions impact your credit score before you make them. Get personalized strategies to improve your score.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+              <Link to="/simulation" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                 Start Simulation
-              </button>
+              </Link>
+              {/* <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                
+              </button> */}
               <button className="bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3 px-6 rounded-lg border border-blue-200 transition-colors">
                 Learn More
               </button>
@@ -36,7 +40,7 @@ const Home = () => {
                   <span className="text-2xl font-bold text-blue-700">720</span>
                 </div>
                 <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{width: '72%'}}></div>
+                  <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full" style={{ width: '72%' }}></div>
                 </div>
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>Poor</span>
@@ -175,7 +179,7 @@ const Home = () => {
             <h3 className="text-blue-900 font-semibold mb-4">Get started for free</h3>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
-                type="email" 
+                type="email"
                 placeholder="Enter your email"
                 className="flex-1 px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={email}

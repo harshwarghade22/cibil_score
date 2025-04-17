@@ -134,7 +134,7 @@ const ProfileScreen = () => {
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Financial Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Employment Status</p>
                       <p className="text-base font-medium capitalize">{profile.employment_status || 'Not provided'}</p>
@@ -142,6 +142,10 @@ const ProfileScreen = () => {
                     <div>
                       <p className="text-sm text-gray-500">Monthly Income</p>
                       <p className="text-base font-medium">{formatCurrency(profile.monthly_income)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Credit Limit</p>
+                      <p className="text-base font-medium">{formatCurrency(profile.credit_limit)}</p>
                     </div>
                   </div>
                 </div>

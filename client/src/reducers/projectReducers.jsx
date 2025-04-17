@@ -30,24 +30,42 @@ switch (action.type) {
 }
 };
 
+const userInfoFromStorage = localStorage.getItem('userInfo')
+  ? JSON.parse(localStorage.getItem('userInfo'))
+  : null;
+
 const initialState2 = {
-    userInfo:null,
-}
+  isAuthenticated: userInfoFromStorage ? true : false,
+  userInfo: userInfoFromStorage,
+};
+
 
 export const loginProjectReducers = (state = initialState2, action) => {
-    switch (action.type) {
-      case LOGIN_PROJECT_REQUEST:
-        return { loading: true , isAuthenticated: false};
-      case LOGIN_PROJECT_SUCCESS:
-        return { loading: false,isAuthenticated: true, userInfo: action.payload };
-      case LOGIN_PROJECT_FAIL:
-        return { loading: false, isAuthenticated: false, error: action.payload };
-      case LOGOUT_PROJECT:
-        return {};
-      default:
-        return state;
-    }
+  switch (action.type) {
+    case LOGIN_PROJECT_REQUEST:
+      return { loading: true, isAuthenticated: false };
+    case LOGIN_PROJECT_SUCCESS:
+      return {
+        loading: false,
+        isAuthenticated: true,
+        userInfo: action.payload,
+      };
+    case LOGIN_PROJECT_FAIL:
+      return {
+        loading: false,
+        isAuthenticated: false,
+        error: action.payload,
+      };
+    case LOGOUT_PROJECT:
+      return {
+        isAuthenticated: false,
+        userInfo: null,
+      };
+    default:
+      return state;
+  }
 };
+
 
 export const userDetailReducers = (state = {}, action) =>{
     switch(action.type){
@@ -122,4 +140,20 @@ export const transactionListReducer = (state = { transactions: [] }, action) => 
       return state
   }
 }
+
+const initialState3 = {
+  creditScoreHistory: [],
+};
+
+export const creditScoreHistoryReducer = (state = initialState3, action) => {
+  switch (action.type) {
+      case 'FETCH_CREDIT_SCORE_HISTORY':
+          return {
+              ...state,
+              creditScoreHistory: action.payload,
+          };
+      default:
+          return state;
+  }
+};
   

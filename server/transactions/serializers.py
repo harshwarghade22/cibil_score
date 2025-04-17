@@ -1,4 +1,4 @@
-from .models import Transaction
+from .models import Transaction,CreditScoreHistory
 from rest_framework import serializers
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -6,3 +6,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         model = Transaction
         fields = '__all__'
         read_only_fields = ['user']
+
+class CreditScoreHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreditScoreHistory
+        fields = ['id', 'user', 'score', 'date']

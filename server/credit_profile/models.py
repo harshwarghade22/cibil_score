@@ -10,6 +10,12 @@ class UserProfile(models.Model):
     employment_status = models.CharField(max_length=100)
     monthly_income = models.DecimalField(max_digits=10, decimal_places=2)
     credit_score = models.PositiveIntegerField(default=300)
+    created_at = models.DateField(auto_now_add=True)
+    credit_limit = models.DecimalField(max_digits=10, decimal_places=2, default=100000)
+
+
 
     def __str__(self):
         return self.full_name
+    
+

@@ -10,6 +10,7 @@ import Add from './components/Transaction/Add';
 import List from './components/Transaction/List';
 import ProfileManagementPage from './components/Profile/ProfileManagementPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import CreditScoreHis from './components/CreditScore/CreditScoreHis';
 
 const App = () => {
   return (
@@ -59,6 +60,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <List />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/simulation"
+            element={
+              <ProtectedRoute>
+                <CreditScoreHis />
               </ProtectedRoute>
             }
           />

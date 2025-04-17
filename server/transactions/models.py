@@ -14,3 +14,12 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.user.name} - {self.type} - {self.amount}"
+
+
+class CreditScoreHistory(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Score: {self.score} - Date: {self.date}"

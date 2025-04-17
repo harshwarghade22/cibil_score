@@ -8,6 +8,7 @@ const CreateProfile = () => {
     dob: '',
     employment_status: '',
     monthly_income: '',
+    credit_limit: ''
   });
 
   const dispatch = useDispatch();
@@ -110,6 +111,27 @@ const CreateProfile = () => {
                 id="monthly_income"
                 name="monthly_income" 
                 value={formData.monthly_income}
+                onChange={handleChange}
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                placeholder="0.00"
+                min="0"
+                required 
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="monthly_income" className="block text-sm font-medium text-gray-700 mb-1">
+              Credit Card Limit (₹)
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-gray-500">₹</span>
+              </div>
+              <input 
+                type="number" 
+                id="credit_limit"
+                name="credit_limit" 
+                value={formData.credit_limit}
                 onChange={handleChange}
                 className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
                 placeholder="0.00"
