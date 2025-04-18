@@ -24,9 +24,9 @@ const Home = () => {
               {/* <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                 
               </button> */}
-              <button className="bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3 px-6 rounded-lg border border-blue-200 transition-colors">
-                Learn More
-              </button>
+              <Link to='/recommendation' className="bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3 px-6 rounded-lg border border-blue-200 transition-colors">
+                Get Recommendations
+              </Link>
             </div>
           </div>
           <div className="md:w-1/2">

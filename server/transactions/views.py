@@ -19,9 +19,14 @@ from .models import Transaction,CreditScoreHistory
 import joblib
 import os
 from django.conf import settings
+import numpy as np
+from rest_framework.decorators import api_view
 
 
 
+# --- Load ML Model and Predict Recommendation ---
+model_path = os.path.join(os.path.dirname(__file__), 'recommendation_model.pkl')
+model = joblib.load(model_path)
 
 
 
@@ -114,18 +119,57 @@ class TransactionCreateView(APIView):
             # --- Load ML Model and Predict Recommendation ---
             model_path = os.path.join(os.path.dirname(__file__), 'recommendation_model.pkl')
             model = joblib.load(model_path)
-            input_features = [[score, credit_util, dti]]
+            input_features = [[profile.credit_score, credit_util, dti]]
             recommendation = model.predict(input_features)[0]
             print("🔍 Input Features:", input_features)
             print("🔁 ML Recommendation:", recommendation)
 
             return Response({
                 'transaction': serializer.data,
-                'credit_score': score,
+                'credit_score': profile.credit_score,
+                'credit_utilization': credit_util,
+                'dti': dti,
                 'recommendation': recommendation
             }, status=201)
             
         return Response(serializer.errors, status=400)
+    
+class MLRecommendationOnlyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        credit_score = request.data.get('credit_score')
+        credit_utilization = request.data.get('credit_utilization')
+        dti = request.data.get('dti')
+
+        if not all([credit_score, credit_utilization, dti]):
+            return Response({'error': 'Missing input parameters'}, status=400)
+
+        
+        
+        input_features = [[credit_score, credit_utilization, dti]]
+        recommendation = model.predict(input_features)[0]
+
+        return Response({'recommendation': recommendation}, status=200)
+
+
+@api_view(['POST'])
+def get_credit_recommendation(request):
+    try:
+        score = request.data.get('score')
+        credit_util = request.data.get('credit_util')
+        dti = request.data.get('dti')
+
+        if None in (score, credit_util, dti):
+            return Response({'error': 'Missing input fields'}, status=400)
+
+        input_features = np.array([[score, credit_util, dti]])
+        prediction = model.predict(input_features)
+
+        return Response({'recommendation': prediction[0]})
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
     
 
 class TransactionListView(ListAPIView):

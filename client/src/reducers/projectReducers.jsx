@@ -119,13 +119,23 @@ export const transactionCreateReducer = (state = {}, action) => {
     case TRANSACTION_CREATE_REQUEST:
       return { loading: true };
     case TRANSACTION_CREATE_SUCCESS:
-      return { loading: false, success: true, transaction: action.payload };
+      return {
+        loading: false,
+        success: true,
+        transaction: action.payload.transaction,
+        credit_score: action.payload.credit_score,
+        credit_utilization: action.payload.credit_utilization,
+        dti:action.payload.dti,
+        recommendation: action.payload.recommendation,
+        
+      };
     case TRANSACTION_CREATE_FAIL:
       return { loading: false, error: action.payload };
     default:
       return state;
   }
 };
+
 
 
 export const transactionListReducer = (state = { transactions: [] }, action) => {

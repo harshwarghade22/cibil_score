@@ -10,7 +10,12 @@ const Add = () => {
   const dispatch = useDispatch();
 
   const transactionCreate = useSelector((state) => state.transactionCreate);
-  const { loading, error, success } = transactionCreate;
+  const { loading, success, transaction, credit_score, recommendation,credit_utilization,dti, error } = transactionCreate;
+  console.log(recommendation)
+  console.log(credit_score)
+  console.log(credit_utilization)
+  console.log(dti)
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,6 +60,14 @@ const Add = () => {
           Add Transaction
         </button>
       </form>
+
+      {success && (
+        <div>
+          <h3>✅ Credit Score: {credit_score}</h3>
+          <p>💡 Recommendation: {recommendation}</p>
+        </div>
+      )}
+
     </div>
   );
 };

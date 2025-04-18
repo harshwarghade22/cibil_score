@@ -164,6 +164,7 @@ export const addTransaction = (transaction) => async (dispatch, getState) => {
     };
 
     const { data } = await axios.post('http://127.0.0.1:8000/api/transactions/add/', transaction, config);
+    console.log(data)
 
     dispatch({ type: TRANSACTION_CREATE_SUCCESS, payload: data });
   } catch (error) {

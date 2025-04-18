@@ -11,6 +11,7 @@ import List from './components/Transaction/List';
 import ProfileManagementPage from './components/Profile/ProfileManagementPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import CreditScoreHis from './components/CreditScore/CreditScoreHis';
+import CreditRecomm from './components/CreditScore/CreditRecomm';
 
 const App = () => {
   return (
@@ -68,6 +69,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CreditScoreHis />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/recommendation"
+            element={
+              <ProtectedRoute>
+                <CreditRecomm />
               </ProtectedRoute>
             }
           />
