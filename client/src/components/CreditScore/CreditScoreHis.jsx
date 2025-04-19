@@ -262,20 +262,22 @@
 
 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCreditScoreHistory } from '../../actions/projectActions';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
   Label
 } from 'recharts';
-import { 
-  ArrowUp, 
-  ArrowDown, 
-  TrendingUp, 
-  Calendar, 
-  Activity, 
-  Award, 
+import {
+  ArrowUp,
+  ArrowDown,
+  TrendingUp,
+  Calendar,
+  Activity,
+  Award,
   AlertCircle,
   ChevronRight,
   Download,
@@ -285,9 +287,14 @@ import {
 
 const CreditScoreHistory = () => {
   const dispatch = useDispatch();
+  const reportRef = useRef();
+
   const creditScoreHistory = useSelector(state => state.creditScoreHistory.creditScoreHistory);
+  console.log(creditScoreHistory.length)
 
   const [mlRecommendation, setMlRecommendation] = useState('');
+  const [predictedScore, setPredictedScore] = useState(null);
+
   const transactionCreate = useSelector((state) => state.transactionCreate);
   const {
     loading,
@@ -322,7 +329,9 @@ const CreditScoreHistory = () => {
         data = creditScoreHistory.filter(item => new Date(item.date) >= threshold);
       }
 
+
       const sorted = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+      console.log(sorted)
 
       setFilteredData(sorted);
     }
@@ -346,7 +355,7 @@ const CreditScoreHistory = () => {
   useEffect(() => {
     if (filteredData.length > 0) {
       const latestScore = filteredData[filteredData.length - 1].score;
-      
+
       if (latestScore >= 800) {
         setCreditLevel('Excellent');
       } else if (latestScore >= 740) {
@@ -362,7 +371,9 @@ const CreditScoreHistory = () => {
   }, [filteredData]);
 
   const scoreChange = getScoreChange();
+
   const currentScore = filteredData.length > 0 ? filteredData[filteredData.length - 1].score : "N/A";
+  console.log(currentScore)
 
   // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload }) => {
@@ -426,8 +437,53 @@ const CreditScoreHistory = () => {
     { value: 800, label: 'Excellent', color: '#059669' }
   ];
 
+  const handleDownloadPDF = () => {
+    const input = reportRef.current;
+    html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('credit_score_report.pdf');
+    });
+  };
+
+  const handleFutureProjection = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/transactions/predict-score/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+        body: JSON.stringify({
+          credit_utilization: credit_utilization,
+          dti: dti
+        })
+      });
+
+      // console.log(response)
+
+      const data = await response.json();
+      if (data.predicted_score) {
+        setPredictedScore(data.predicted_score);
+        alert(`Predicted Score: ${data.predicted_score}`);
+      } else {
+        alert("Prediction failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error predicting future score.");
+    }
+  };
+
+
+
   return (
-    <div className="bg-gray-50 min-h-screen pb-12">
+    <div className="bg-gray-50 min-h-screen pb-12" ref={reportRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="py-6">
@@ -441,10 +497,17 @@ const CreditScoreHistory = () => {
                 <RefreshCw size={16} className="mr-2" />
                 Refresh Data
               </button>
-              <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onClick={handleDownloadPDF}>
                 <Download size={16} className="mr-2" />
                 Export Report
               </button>
+              <button
+              onClick={handleFutureProjection}
+              className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700"
+            >
+              <Lightbulb size={16} className="mr-2" />
+              Predict Future Score
+            </button>
             </div>
           </div>
         </div>
@@ -475,13 +538,12 @@ const CreditScoreHistory = () => {
                   </div>
                   <div className="mt-2 text-sm font-medium text-gray-500">{creditLevel}</div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5 mt-6">
-                    <div 
-                      className={`h-2.5 rounded-full ${
-                        currentScore >= 800 ? 'bg-emerald-600' :
+                    <div
+                      className={`h-2.5 rounded-full ${currentScore >= 800 ? 'bg-emerald-600' :
                         currentScore >= 740 ? 'bg-green-600' :
-                        currentScore >= 670 ? 'bg-blue-600' :
-                        currentScore >= 580 ? 'bg-amber-500' : 'bg-red-600'
-                      }`}
+                          currentScore >= 670 ? 'bg-blue-600' :
+                            currentScore >= 580 ? 'bg-amber-500' : 'bg-red-600'
+                        }`}
                       style={{ width: `${Math.min(100, (currentScore / 850) * 100)}%` }}
                     ></div>
                   </div>
@@ -495,8 +557,8 @@ const CreditScoreHistory = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-500">Last Updated</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {filteredData.length > 0 
-                      ? new Date(filteredData[filteredData.length - 1].date).toLocaleDateString() 
+                    {filteredData.length > 0
+                      ? new Date(filteredData[filteredData.length - 1].date).toLocaleDateString()
                       : 'N/A'}
                   </span>
                 </div>
@@ -601,7 +663,7 @@ const CreditScoreHistory = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="p-4 border border-indigo-100 rounded-lg bg-indigo-50">
                         <div className="flex">
                           <div className="flex-shrink-0">
@@ -620,6 +682,18 @@ const CreditScoreHistory = () => {
                 </div>
               </div>
             )}
+
+            {predictedScore && (
+              <div className="mt-4 p-4 border-l-4 border-purple-500 bg-purple-50 rounded-md shadow-sm">
+                <p className="text-purple-700 font-semibold">
+                  📈 Projected Credit Score (6 Months): {predictedScore}
+                </p>
+              </div>
+            )}
+
+
+            
+
           </div>
 
           {/* Right Column - Charts and History */}
@@ -679,25 +753,25 @@ const CreditScoreHistory = () => {
                           width={35}
                         />
                         <Tooltip content={<CustomTooltip />} />
-                        
+
                         {/* Reference lines for credit score ranges */}
                         {scoreRanges.map((range) => (
-                          <ReferenceLine 
+                          <ReferenceLine
                             key={range.value}
-                            y={range.value} 
-                            stroke={range.color} 
+                            y={range.value}
+                            stroke={range.color}
                             strokeDasharray="3 3"
                             strokeWidth={1}
                           >
-                            <Label 
-                              value={range.label} 
-                              position="right" 
+                            <Label
+                              value={range.label}
+                              position="right"
                               fill={range.color}
                               fontSize={10}
                             />
                           </ReferenceLine>
                         ))}
-                        
+
                         <Line
                           type="monotone"
                           dataKey="score"
@@ -733,7 +807,7 @@ const CreditScoreHistory = () => {
                   </button>
                 </div>
               </div>
-              
+
               {filteredData.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -749,11 +823,11 @@ const CreditScoreHistory = () => {
                         // Calculate change from previous record
                         const prevScore = index < array.length - 1 ? array[index + 1].score : item.score;
                         const scoreChange = item.score - prevScore;
-                        
+
                         return (
                           <tr key={item.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(item.date).toLocaleDateString()}
+                              {new Date(item.date).toLocaleString()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                               {item.score}
@@ -763,8 +837,8 @@ const CreditScoreHistory = () => {
                                 <span className={`font-medium flex items-center ${scoreChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                   {scoreChange > 0 && '+'}
                                   {scoreChange}
-                                  {scoreChange > 0 ? 
-                                    <ArrowUp size={14} className="ml-1" /> : 
+                                  {scoreChange > 0 ?
+                                    <ArrowUp size={14} className="ml-1" /> :
                                     scoreChange < 0 ? <ArrowDown size={14} className="ml-1" /> : null
                                   }
                                 </span>

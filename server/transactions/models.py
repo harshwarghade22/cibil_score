@@ -19,7 +19,9 @@ class Transaction(models.Model):
 class CreditScoreHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.IntegerField()
-    date = models.DateField(auto_now_add=True)
+    credit_utilization = models.FloatField(default=0.0)  # <-- added field for credit utilization
+    dti = models.FloatField(default=0.0)  # <-- added field for DTI (Debt-to-Income ratio)
+    date = models.DateTimeField(auto_now_add=True)  # <-- captures both date & time
 
     def __str__(self):
-        return f"Score: {self.score} - Date: {self.date}"
+        return f"{self.user.username} | Score: {self.score} | Util: {self.credit_utilization:.2f} | DTI: {self.dti:.2f} | At: {self.timestamp}"

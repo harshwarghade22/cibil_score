@@ -28,6 +28,11 @@ from rest_framework.decorators import api_view
 model_path = os.path.join(os.path.dirname(__file__), 'recommendation_model.pkl')
 model = joblib.load(model_path)
 
+model_path1 = os.path.join(os.path.dirname(__file__), 'predict_credit_model.pkl')
+model1 = joblib.load(model_path1)
+
+
+
 
 
 # Create your views here.
@@ -114,7 +119,13 @@ class TransactionCreateView(APIView):
             profile.credit_score = 300 + min(balance // 1000, 550)
             profile.save()
 
-            CreditScoreHistory.objects.create(user=request.user, score=profile.credit_score)
+            CreditScoreHistory.objects.create(
+                user=request.user,
+                score=profile.credit_score,
+                credit_utilization=credit_util,
+                dti=dti,
+            )
+
 
             # --- Load ML Model and Predict Recommendation ---
             model_path = os.path.join(os.path.dirname(__file__), 'recommendation_model.pkl')
@@ -186,3 +197,18 @@ class CreditScoreHistoryListView(ListAPIView):
 
     def get_queryset(self):
         return CreditScoreHistory.objects.filter(user=self.request.user).order_by('-date')
+
+from rest_framework.decorators import api_view, permission_classes
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def predict_future_score(request):
+    try:
+        data = request.data
+        credit_utilization = float(data['credit_utilization'])
+        dti = float(data['dti'])
+
+        prediction = model1.predict([[credit_utilization, dti]])
+        return Response({'predicted_score': round(prediction[0], 2)})
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)

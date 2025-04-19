@@ -10,4 +10,4 @@ class TransactionSerializer(serializers.ModelSerializer):
 class CreditScoreHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CreditScoreHistory
-        fields = ['id', 'user', 'score', 'date']
+        fields = '__all__'
